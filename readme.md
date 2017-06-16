@@ -21,8 +21,8 @@ Part 2 for Coursera covers Chapters 04, 07 - 12
 
 
 Chapters
-*  ==Chapter 4 Machine Language (Optional)==
-*  Chapter 07
+*  Chapter 4 Machine Language (Optional)
+*  == Chapter 07 Virtual Machine 1 : Stack Arithmetic ==
 *  Chapter 08
 *  Chapter 09
 *  Chapter 10

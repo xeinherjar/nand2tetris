@@ -9,7 +9,7 @@ def add(file_name, line_number):
         @SP
         M=M-1
         A=M
-        D=M+D
+        D=D+M
         M=D
         @SP
         M=M+1
@@ -81,7 +81,6 @@ def pop(segment, value, file_name, line_number):
         @{file_name}.{value}
         M=D
         """.format(file_name=file_name, value=value)
-        print(asm)
     elif segment == 'pointer' or segment == 'temp':
         # pointer 3 + value
         # temp 5 + value
@@ -91,6 +90,7 @@ def pop(segment, value, file_name, line_number):
         // pop {segment} {value}
         @SP
         M=M-1
+        @SP
         A=M
         D=M
         @{location}
@@ -102,6 +102,9 @@ def pop(segment, value, file_name, line_number):
         // pop {label} {value}
         @SP
         M=M-1
+        A=M
+        D=M
+
         @{value}
         D=A
         @{label}
@@ -115,6 +118,8 @@ def pop(segment, value, file_name, line_number):
         A=M
         M=D
         """.format(label=label, value=value)
+
+    print(asm)
 
 
 
@@ -171,6 +176,7 @@ def push(segment, value, file_name, line_number):
         @{location}
         D=M
         @SP
+        A=M
         M=D
         @SP
         M=M+1
@@ -185,6 +191,7 @@ def push(segment, value, file_name, line_number):
         A=M+D
         D=M
         @SP
+        A=M
         M=D
         @SP
         M=M+1

@@ -1,3 +1,6 @@
+# All lables have to be unique...
+label_counter = 0
+
 def add(file_name, line_number):
     """ Pop two values from stack, add, push result onto stack"""
     asm = """
@@ -14,7 +17,7 @@ def add(file_name, line_number):
         @SP
         M=M+1
     """
-    print(asm)
+    return asm
 
 def sub(file_name, line_number):
     """ Pop two values from stack, sub, push result onto stack"""
@@ -32,28 +35,195 @@ def sub(file_name, line_number):
         @SP
         M=M+1
     """
-    print(asm)
+    return asm
 
 def neg(file_name, line_number):
-    pass
+    """ Pop one value from stack, not, push result onto stack"""
+    asm = """
+        // neg
+        @SP
+        A=M-1
+        M=-M
+    """
+    return asm
 
 def eq(file_name, line_number):
-    pass
+    """ If subtration is 0 then they are equal
+        where -1 is true
+               0 is false
+    """
+    global label_counter
+    jmp_label = str(label_counter)
+    label_counter = label_counter + 1
+
+    sub(file_name, line_number)
+
+    asm = """
+        // eq
+        @SP
+        M=M-1
+        A=M
+        D=M
+        @IF_TRUE_{label}
+        D;JEQ
+        @IF_FALSE_{label}
+        0;JMP
+
+        (IF_TRUE_{label})
+          @SP
+          A=M
+          M=-1
+          @EQ_{label}
+          0;JMP
+        (IF_FALSE_{label})
+          @SP
+          A=M
+          M=0
+          @EQ_{label}
+          0;JMP
+
+        (EQ_{label})
+        @SP
+        M=M+1
+
+        """.format(label=jmp_label)
+    return asm
+
 
 def gt(file_name, line_number):
-    pass
+    """ If subtration is greater than 0 then its larger
+        else its equal or smaller
+        where -1 is true
+               0 is false
+    """
+    global label_counter
+    jmp_label = str(label_counter)
+    label_counter = label_counter + 1
+
+    sub(file_name, line_number)
+
+    asm = """
+        // gt
+        @SP
+        M=M-1
+        A=M
+        D=M
+        @IF_TRUE_{label}
+        D;JGT
+        @IF_FALSE_{label}
+        0;JMP
+
+        (IF_TRUE_{label})
+          @SP
+          A=M
+          M=-1
+          @GT_{label}
+          0;JMP
+        (IF_FALSE_{label})
+          @SP
+          A=M
+          M=0
+          @GT_{label}
+          0;JMP
+
+        (GT_{label})
+        @SP
+        M=M+1
+
+        """.format(label=jmp_label)
+    return asm
+
 
 def lt(file_name, line_number):
-    pass
+    """ If subtration is less than 0 then its smaller
+        else its equal or larger
+        where -1 is true
+               0 is false
+    """
+    global label_counter
+    jmp_label = str(label_counter)
+    label_counter = label_counter + 1
+
+    sub(file_name, line_number)
+
+    asm = """
+        // lt
+        @SP
+        M=M-1
+        A=M
+        D=M
+        @IF_TRUE_{label}
+        D;JLT
+        @IF_FALSE_{label}
+        0;JMP
+
+        (IF_TRUE_{label})
+          @SP
+          A=M
+          M=-1
+          @LT_{label}
+          0;JMP
+        (IF_FALSE_{label})
+          @SP
+          A=M
+          M=0
+          @LT_{label}
+          0;JMP
+
+        (LT_{label})
+        @SP
+        M=M+1
+
+        """.format(label=jmp_label)
+    return asm
+
 
 def _and(file_name, line_number):
-    pass
+    """ Pop two values from stack, and, push result onto stack"""
+    asm = """
+        // and
+        @SP
+        M=M-1
+        A=M
+        D=M
+        @SP
+        M=M-1
+        A=M
+        D=D&M
+        M=D
+        @SP
+        M=M+1
+    """
+    return asm
 
 def _or(file_name, line_number):
-    pass
+    """ Pop two values from stack, or, push result onto stack"""
+    asm = """
+        // or
+        @SP
+        M=M-1
+        A=M
+        D=M
+        @SP
+        M=M-1
+        A=M
+        D=D|M
+        M=D
+        @SP
+        M=M+1
+    """
+    return asm
+
 
 def _not(file_name, line_number):
-    pass
+    """ Pop one value from stack, not, push result onto stack"""
+    asm = """
+        // not
+        @SP
+        A=M-1
+        M=!M
+    """
+    return asm
 
 def pop(segment, value, file_name, line_number):
     """
@@ -102,9 +272,6 @@ def pop(segment, value, file_name, line_number):
         // pop {label} {value}
         @SP
         M=M-1
-        A=M
-        D=M
-
         @{value}
         D=A
         @{label}
@@ -119,7 +286,7 @@ def pop(segment, value, file_name, line_number):
         M=D
         """.format(label=label, value=value)
 
-    print(asm)
+    return asm
 
 
 
@@ -197,7 +364,7 @@ def push(segment, value, file_name, line_number):
         M=M+1
         """.format(label=label, value=value)
 
-    print(asm)
+    return asm
 
 commands = {
     'add': add,
@@ -215,5 +382,4 @@ commands = {
 
 
 def writer(command, parts, file_name, line_number):
-    #print(file_name, line_number)
-    commands[command](*parts, file_name=file_name, line_number=line_number)
+    return commands[command](*parts, file_name=file_name, line_number=line_number)

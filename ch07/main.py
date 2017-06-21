@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Converts VM files to Hack compatibale ASM files
 
-import sys, os
+import sys
+import os
 from writer import writer
 
 if not sys.argv[1]:
@@ -10,6 +11,7 @@ if not sys.argv[1]:
 
 source_file = sys.argv[1]
 file_name = os.path.splitext(os.path.basename(source_file))[0]
+asm = []
 
 with open(source_file, 'r') as f:
     line_number = 0
@@ -24,7 +26,9 @@ with open(source_file, 'r') as f:
             parts = line.split(' ')
             command = parts[0]
             parts = parts[1:]
-            writer(command, parts, file_name, line_number)
+            asm.append(writer(command, parts, file_name, line_number))
 
+with open(file_name + '.asm', 'w') as f:
+    f.write(''.join(asm))
 
 

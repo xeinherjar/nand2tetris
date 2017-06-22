@@ -1,385 +1,360 @@
-# All lables have to be unique...
-label_counter = 0
+class ASMWriter(object):
+    """Generates ASM from VM Byte Code"""
+    label_counter = 0
+    pointers = {
+        'local'   : 'LCL',  # 1
+        'argument': 'ARG',  # 2
+        'this'    : 'THIS', # 3
+        'that'    : 'THAT', # 4
+    }
 
-def add(file_name, line_number):
-    """ Pop two values from stack, add, push result onto stack"""
-    asm = """
-        // add
-        @SP
-        M=M-1
-        A=M
-        D=M
-        @SP
-        M=M-1
-        A=M
-        D=D+M
-        M=D
-        @SP
-        M=M+1
-    """
-    return asm
+    def vm_to_asm(self, vm_op, vm_args, file_name='', line_number=''):
+        """Generates ASM from VM Opcodes"""
+        commands = {
+            'add': self.asm_add, 'sub' : self.asm_sub, 'neg': self.asm_neg,
+            'eq': self.asm_eq,   'gt': self.asm_gt,    'lt': self.asm_lt,
+            'and': self.asm_and, 'or': self.asm_or,    'not': self.asm_not,
+            'pop': self.asm_pop, 'push': self.asm_push
+        }
+        return commands[vm_op](*vm_args, file_name=file_name, line_number=line_number)
 
-def sub(file_name, line_number):
-    """ Pop two values from stack, sub, push result onto stack"""
-    asm = """
-        // sub
-        @SP
-        M=M-1
-        A=M
-        D=M
-        @SP
-        M=M-1
-        A=M
-        D=M-D
-        M=D
-        @SP
-        M=M+1
-    """
-    return asm
+    def asm_add(self, file_name, line_number):
+        """Pop two values from stack, add, push result onto stack"""
+        asm = [
+            "// add {file_name} {line_number}",
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=M",
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=D+M",
+            "M=D",
+            "@SP",
+            "M=M+1",
+        ]
 
-def neg(file_name, line_number):
-    """ Pop one value from stack, not, push result onto stack"""
-    asm = """
-        // neg
-        @SP
-        A=M-1
-        M=-M
-    """
-    return asm
+        return '\n'.join(asm).format(file_name=file_name,
+                                     line_number=line_number) + '\n'
 
-def eq(file_name, line_number):
-    """ If subtration is 0 then they are equal
+
+    def asm_sub(self, file_name, line_number):
+        """Pop two values from stack, sub, push result onto stack"""
+        asm = [
+            "// sub {file_name} {line_number}",
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=M",
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=M-D",
+            "M=D",
+            "@SP",
+            "M=M+1",
+        ]
+
+        return '\n'.join(asm).format(file_name=file_name,
+                                     line_number=line_number) + '\n'
+
+
+    def asm_neg(self, file_name, line_number):
+        """Pop one value from stack, not, push result onto stack"""
+        asm = [
+            "// neg {file_name} {line_number}",
+            "@SP",
+            "A=M-1",
+            "M=-M",
+        ]
+
+        return '\n'.join(asm).format(file_name=file_name,
+                                     line_number=line_number) + '\n'
+
+    def asm_eq(self, file_name, line_number):
+        """If subtration is 0 then they are equal
         where -1 is true
                0 is false
-    """
-    global label_counter
-    jmp_label = str(label_counter)
-    label_counter = label_counter + 1
+        """
+        jmp_label = str(ASMWriter.label_counter)
+        ASMWriter.label_counter = ASMWriter.label_counter + 1
 
-    sub(file_name, line_number)
-
-    asm = """
-        // eq
-        @SP
-        M=M-1
-        A=M
-        D=M
-        @IF_TRUE_{label}
-        D;JEQ
-        @IF_FALSE_{label}
-        0;JMP
-
-        (IF_TRUE_{label})
-          @SP
-          A=M
-          M=-1
-          @EQ_{label}
-          0;JMP
-        (IF_FALSE_{label})
-          @SP
-          A=M
-          M=0
-          @EQ_{label}
-          0;JMP
-
-        (EQ_{label})
-        @SP
-        M=M+1
-
-        """.format(label=jmp_label)
-    return asm
+        asm = [
+            "// eq {file_name} {line_number}",
+            self.asm_sub(file_name, line_number),
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=M",
+            "@IF_TRUE_{jmp_label}",
+            "D;JEQ",
+            "@IF_FALSE_{jmp_label}",
+            "0;JMP",
+            "(IF_TRUE_{jmp_label})",
+            "  @SP",
+            "  A=M",
+            "  M=-1",
+            "  @EQ_{jmp_label}",
+            "  0;JMP",
+            "(IF_FALSE_{jmp_label})",
+            "  @SP",
+            "  A=M",
+            "  M=0",
+            "  @EQ_{jmp_label}",
+            "  0;JMP",
+            "(EQ_{jmp_label})",
+            "@SP",
+            "M=M+1",
+        ]
+        return '\n'.join(asm).format(jmp_label=jmp_label,
+                                     file_name=file_name,
+                                     line_number=line_number) + '\n'
 
 
-def gt(file_name, line_number):
-    """ If subtration is greater than 0 then its larger
+    def asm_gt(self, file_name, line_number):
+        """If subtration is greater than 0 then its larger
         else its equal or smaller
         where -1 is true
                0 is false
-    """
-    global label_counter
-    jmp_label = str(label_counter)
-    label_counter = label_counter + 1
+        """
+        jmp_label = str(ASMWriter.label_counter)
+        ASMWriter.label_counter = ASMWriter.label_counter + 1
 
-    sub(file_name, line_number)
+        asm = [
+            "// gt {file_name} {line_number}",
+            self.asm_sub(file_name, line_number),
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=M",
+            "@IF_TRUE_{jmp_label}",
+            "D;JGT",
+            "@IF_FALSE_{jmp_label}",
+            "0;JMP",
+            "(IF_TRUE_{jmp_label})",
+            "  @SP",
+            "  A=M",
+            "  M=-1",
+            "  @GT_{jmp_label}",
+            "  0;JMP",
+            "(IF_FALSE_{jmp_label})",
+            "  @SP",
+            "  A=M",
+            "  M=0",
+            "  @GT_{jmp_label}",
+            "  0;JMP",
+            "(GT_{jmp_label})",
+            "@SP",
+            "M=M+1",
+        ]
 
-    asm = """
-        // gt
-        @SP
-        M=M-1
-        A=M
-        D=M
-        @IF_TRUE_{label}
-        D;JGT
-        @IF_FALSE_{label}
-        0;JMP
-
-        (IF_TRUE_{label})
-          @SP
-          A=M
-          M=-1
-          @GT_{label}
-          0;JMP
-        (IF_FALSE_{label})
-          @SP
-          A=M
-          M=0
-          @GT_{label}
-          0;JMP
-
-        (GT_{label})
-        @SP
-        M=M+1
-
-        """.format(label=jmp_label)
-    return asm
+        return '\n'.join(asm).format(jmp_label=jmp_label,
+                                     file_name=file_name,
+                                     line_number=line_number) + '\n'
 
 
-def lt(file_name, line_number):
-    """ If subtration is less than 0 then its smaller
+    def asm_lt(self, file_name, line_number):
+        """If subtration is less than 0 then its smaller
         else its equal or larger
         where -1 is true
                0 is false
-    """
-    global label_counter
-    jmp_label = str(label_counter)
-    label_counter = label_counter + 1
+        """
+        jmp_label = str(ASMWriter.label_counter)
+        ASMWriter.label_counter = ASMWriter.label_counter + 1
 
-    sub(file_name, line_number)
+        asm = [
+            "// lt {file_name} {line_number}",
+            self.asm_sub(file_name, line_number),
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=M",
+            "@IF_TRUE_{jmp_label}",
+            "D;JLT",
+            "@IF_FALSE_{jmp_label}",
+            "0;JMP",
+            "(IF_TRUE_{jmp_label})",
+            "  @SP",
+            "  A=M",
+            "  M=-1",
+            "  @LT_{jmp_label}",
+            "  0;JMP",
+            "(IF_FALSE_{jmp_label})",
+            "  @SP",
+            "  A=M",
+            "  M=0",
+            "  @LT_{jmp_label}",
+            "  0;JMP",
+            "(LT_{jmp_label})",
+            "@SP",
+            "M=M+1",
+        ]
 
-    asm = """
-        // lt
-        @SP
-        M=M-1
-        A=M
-        D=M
-        @IF_TRUE_{label}
-        D;JLT
-        @IF_FALSE_{label}
-        0;JMP
-
-        (IF_TRUE_{label})
-          @SP
-          A=M
-          M=-1
-          @LT_{label}
-          0;JMP
-        (IF_FALSE_{label})
-          @SP
-          A=M
-          M=0
-          @LT_{label}
-          0;JMP
-
-        (LT_{label})
-        @SP
-        M=M+1
-
-        """.format(label=jmp_label)
-    return asm
+        return '\n'.join(asm).format(jmp_label=jmp_label,
+                                     file_name=file_name,
+                                     line_number=line_number) + '\n'
 
 
-def _and(file_name, line_number):
-    """ Pop two values from stack, and, push result onto stack"""
-    asm = """
-        // and
-        @SP
-        M=M-1
-        A=M
-        D=M
-        @SP
-        M=M-1
-        A=M
-        D=D&M
-        M=D
-        @SP
-        M=M+1
-    """
-    return asm
+    def asm_and(self, file_name, line_number):
+        """Pop two values from stack, and, push result onto stack"""
+        asm = [
+            "// and {file_name} {line_number}",
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=M",
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=D&M",
+            "M=D",
+            "@SP",
+            "M=M+1",
+        ]
+        return '\n'.join(asm).format(file_name=file_name,
+                                     line_number=line_number) + '\n'
 
-def _or(file_name, line_number):
-    """ Pop two values from stack, or, push result onto stack"""
-    asm = """
-        // or
-        @SP
-        M=M-1
-        A=M
-        D=M
-        @SP
-        M=M-1
-        A=M
-        D=D|M
-        M=D
-        @SP
-        M=M+1
-    """
-    return asm
-
-
-def _not(file_name, line_number):
-    """ Pop one value from stack, not, push result onto stack"""
-    asm = """
-        // not
-        @SP
-        A=M-1
-        M=!M
-    """
-    return asm
-
-def pop(segment, value, file_name, line_number):
-    """
-    Where segment is one of:
-        local, argument, this, that
-        static:
-            Pop to static
-    """
-    pointers = {
-        'local'   : 'LCL',  # 1
-        'argument': 'ARG',  # 2
-        'this'    : 'THIS', # 3
-        'that'    : 'THAT', # 4
-    }
-    asm = ''
-    if segment == 'static':
-        # SP--; @file_name.value = *SP
-        asm = asm + """
-        // pop static
-        @SP
-        M=M-1
-        @SP
-        A=M
-        D=M
-        @{file_name}.{value}
-        M=D
-        """.format(file_name=file_name, value=value)
-    elif segment == 'pointer' or segment == 'temp':
-        # pointer 3 + value
-        # temp 5 + value
-        l = { 'temp': 5, 'pointer': 3 }
-        location = int(value) + l[segment]
-        asm = asm + """
-        // pop {segment} {value}
-        @SP
-        M=M-1
-        @SP
-        A=M
-        D=M
-        @{location}
-        M=D
-        """.format(segment=segment, value=value, location=location)
-    else:
-        label = pointers[segment]
-        asm = asm + """
-        // pop {label} {value}
-        @SP
-        M=M-1
-        @{value}
-        D=A
-        @{label}
-        D=M+D
-        @R13
-        M=D
-        @SP
-        A=M
-        D=M
-        @R13
-        A=M
-        M=D
-        """.format(label=label, value=value)
-
-    return asm
+    def asm_or(self, file_name, line_number):
+        """Pop two values from stack, or, push result onto stack"""
+        asm = [
+            "// or {file_name} {line_number}",
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=M",
+            "@SP",
+            "M=M-1",
+            "A=M",
+            "D=D|M",
+            "M=D",
+            "@SP",
+            "M=M+1",
+        ]
+        return '\n'.join(asm).format(file_name=file_name,
+                                     line_number=line_number) + '\n'
 
 
+    def asm_not(self, file_name, line_number):
+        """Pop one value from stack, not, push result onto stack"""
+        asm = [
+            "// not {file_name} {line_number}",
+            "@SP",
+            "A=M-1",
+            "M=!M",
+        ]
 
-def push(segment, value, file_name, line_number):
-    """
-    Where segment is one of:
-        local, argument, this, that:
-            Push value onto stack at *segment pointer + segment offset
-        constant:
-            Push directly to stack
-        static:
-            Push to static, [16 - 255]
-    """
-    asm = ''
-    pointers = {
-        'local'   : 'LCL',  # 1
-        'argument': 'ARG',  # 2
-        'this'    : 'THIS', # 3
-        'that'    : 'THAT', # 4
-    }
-    #    'temp': None, #??
-
-    if segment == 'constant':
-        # *SP = value; SP++
-        asm = asm + """
-        // push constant {value}
-        @{value}
-        D=A
-        @SP
-        A=M
-        M=D
-        @SP
-        M=M+1
-        """.format(value=value)
-    elif segment == 'static':
-        # *SP = @Filename.value
-        asm = asm + """
-        // push static {value}
-        @{file_name}.{value}
-        D=M
-        @SP
-        A=M
-        M=D
-        @SP
-        M=M+1
-        """.format(file_name=file_name, value=value)
-    elif segment == 'pointer' or segment == 'temp':
-        # pointer 3 + value
-        # temp 5 + value
-        l = { 'temp': 5, 'pointer': 3 }
-        location = int(value) + l[segment]
-        asm = asm + """
-        // push {segment} {value}
-        @{location}
-        D=M
-        @SP
-        A=M
-        M=D
-        @SP
-        M=M+1
-        """.format(segment=segment, value=value, location=location)
-    else:
-        label = pointers[segment]
-        asm = asm + """
-        // push {label} {value}
-        @{value}
-        D=A
-        @{label}
-        A=M+D
-        D=M
-        @SP
-        A=M
-        M=D
-        @SP
-        M=M+1
-        """.format(label=label, value=value)
-
-    return asm
-
-commands = {
-    'add': add,
-    'sub': sub,
-    'neg': neg,
-    'eq' : eq,
-    'gt' : gt,
-    'lt' : lt,
-    'and': _and,
-    'or' : _or,
-    'not': _not,
-    'pop': pop,
-    'push': push,
-}
+        return '\n'.join(asm).format(file_name=file_name,
+                                     line_number=line_number) + '\n'
 
 
-def writer(command, parts, file_name, line_number):
-    return commands[command](*parts, file_name=file_name, line_number=line_number)
+    def asm_pop(self, segment, value, file_name, line_number):
+        """Where segment is one of:
+           local, argument, this, that, static, pointer, temp
+        """
+        if segment in ['static', 'pointer', 'temp']:
+            if segment == 'static':
+                location = "{file_name}.{value}".format(file_name=file_name, value=value)
+            else:
+                offset = 3 if segment == 'pointer' else 5
+                location = offset + int(value)
+
+            asm = [
+                "// pop {segment} {value} {file_name} {line_number}",
+                "@SP",
+                "M=M-1",
+                "@SP",
+                "A=M",
+                "D=M",
+                "@{location}",
+                "M=D",
+            ]
+        else:
+            location = self.pointers[segment]
+            asm = [
+                "// pop {segment} {value} {file_name} {line_number}",
+                "@SP",
+                "M=M-1",
+                "@{value}",
+                "D=A",
+                "@{location}",
+                "D=M+D",
+                "@R13",
+                "M=D",
+                "@SP",
+                "A=M",
+                "D=M",
+                "@R13",
+                "A=M",
+                "M=D",
+            ]
+
+        return '\n'.join(asm).format(segment=segment,
+                                     location=location,
+                                     value=value,
+                                     file_name=file_name,
+                                     line_number=line_number) + '\n'
+
+    def asm_push(self, segment, value, file_name, line_number):
+        """
+        Where segment is one of:
+            local, argument, this, that:
+                Push value onto stack at *segment pointer + segment offset
+            constant:
+                Push directly to stack
+            static:
+                Push to static, [16 - 255]
+        """
+        if segment in ['static', 'pointer', 'temp']:
+            if segment == 'static':
+                location = "{file_name}.{value}".format(file_name=file_name, value=value)
+            else:
+                offset = 3 if segment == 'pointer' else 5
+                location = offset + int(value)
+
+            asm = [
+                "// push {segment} {value} {file_name} {line_number}",
+                "@{location}",
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+            ]
+        elif segment == 'constant':
+            location = value
+            asm = [
+                "// push {segment} {value}",
+                "@{location}",
+                "D=A",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+            ]
+        else:
+            location = self.pointers[segment]
+            asm = [
+                "// push {segment} {value} {file_name} {line_number}",
+                "@{value}",
+                "D=A",
+                "@{location}",
+                "A=M+D",
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+            ]
+
+        return '\n'.join(asm).format(segment=segment,
+                                     location=location,
+                                     value=value,
+                                     file_name=file_name,
+                                     line_number=line_number) + '\n'
+
+
+

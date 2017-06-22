@@ -1,4 +1,4 @@
-// push constant 17
+// push constant 17 StackTest 8
 @17
 D=A
 @SP
@@ -6,7 +6,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 17
+// push constant 17 StackTest 9
 @17
 D=A
 @SP
@@ -51,7 +51,7 @@ D;JEQ
 (EQ_0)
 @SP
 M=M+1
-// push constant 17
+// push constant 17 StackTest 11
 @17
 D=A
 @SP
@@ -59,7 +59,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 16
+// push constant 16 StackTest 12
 @16
 D=A
 @SP
@@ -104,7 +104,7 @@ D;JEQ
 (EQ_1)
 @SP
 M=M+1
-// push constant 16
+// push constant 16 StackTest 14
 @16
 D=A
 @SP
@@ -112,7 +112,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 17
+// push constant 17 StackTest 15
 @17
 D=A
 @SP
@@ -157,7 +157,7 @@ D;JEQ
 (EQ_2)
 @SP
 M=M+1
-// push constant 892
+// push constant 892 StackTest 17
 @892
 D=A
 @SP
@@ -165,7 +165,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 891
+// push constant 891 StackTest 18
 @891
 D=A
 @SP
@@ -210,7 +210,7 @@ D;JLT
 (LT_3)
 @SP
 M=M+1
-// push constant 891
+// push constant 891 StackTest 20
 @891
 D=A
 @SP
@@ -218,7 +218,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 892
+// push constant 892 StackTest 21
 @892
 D=A
 @SP
@@ -263,7 +263,7 @@ D;JLT
 (LT_4)
 @SP
 M=M+1
-// push constant 891
+// push constant 891 StackTest 23
 @891
 D=A
 @SP
@@ -271,7 +271,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 891
+// push constant 891 StackTest 24
 @891
 D=A
 @SP
@@ -316,7 +316,7 @@ D;JLT
 (LT_5)
 @SP
 M=M+1
-// push constant 32767
+// push constant 32767 StackTest 26
 @32767
 D=A
 @SP
@@ -324,7 +324,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 32766
+// push constant 32766 StackTest 27
 @32766
 D=A
 @SP
@@ -369,7 +369,7 @@ D;JGT
 (GT_6)
 @SP
 M=M+1
-// push constant 32766
+// push constant 32766 StackTest 29
 @32766
 D=A
 @SP
@@ -377,7 +377,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 32767
+// push constant 32767 StackTest 30
 @32767
 D=A
 @SP
@@ -422,7 +422,7 @@ D;JGT
 (GT_7)
 @SP
 M=M+1
-// push constant 32766
+// push constant 32766 StackTest 32
 @32766
 D=A
 @SP
@@ -430,7 +430,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 32766
+// push constant 32766 StackTest 33
 @32766
 D=A
 @SP
@@ -475,7 +475,7 @@ D;JGT
 (GT_8)
 @SP
 M=M+1
-// push constant 57
+// push constant 57 StackTest 35
 @57
 D=A
 @SP
@@ -483,7 +483,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 31
+// push constant 31 StackTest 36
 @31
 D=A
 @SP
@@ -491,7 +491,7 @@ A=M
 M=D
 @SP
 M=M+1
-// push constant 53
+// push constant 53 StackTest 37
 @53
 D=A
 @SP
@@ -511,7 +511,7 @@ D=D+M
 M=D
 @SP
 M=M+1
-// push constant 112
+// push constant 112 StackTest 39
 @112
 D=A
 @SP
@@ -547,7 +547,7 @@ D=D&M
 M=D
 @SP
 M=M+1
-// push constant 82
+// push constant 82 StackTest 43
 @82
 D=A
 @SP

@@ -325,7 +325,7 @@ class ASMWriter(object):
         elif segment == 'constant':
             location = value
             asm = [
-                "// push {segment} {value}",
+                "// push {segment} {value} {file_name} {line_number}",
                 "@{location}",
                 "D=A",
                 "@SP",

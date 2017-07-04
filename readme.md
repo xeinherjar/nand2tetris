@@ -21,10 +21,19 @@ Part 2 for Coursera covers Chapters 04, 07 - 12
 
 
 Chapters
-*  Chapter 4 Machine Language (Optional)
-*  Chapter 07 Virtual Machine 1 : Stack Arithmetic
-*  Chapter 08 Virtual Machine 2: Program Control
-*  == Chapter 09 High-Level Languages ==
-*  Chapter 10
-*  Chapter 11
-*  Chapter 12
+*  [x] Chapter 4 Machine Language (Optional)
+*  [x] Chapter 07 Virtual Machine 1 : Stack Arithmetic
+*  [x] Chapter 08 Virtual Machine 2: Program Control
+*  == [] Chapter 09 High-Level Languages ==
+*  [] Chapter 10
+*  [] Chapter 11
+*  [] Chapter 12
+
+
+Status: The application can compile VM code to assembly. The lexing and parsing
+of the Jack language happen in later chapters.
+
+
+TODO: I need to build a more complex task to test the labeling, chapter 8 has
+some notes about how labels that appear in functions should be named, but I
+have yet to implement that, but all the test from the autograder still work.

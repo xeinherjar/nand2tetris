@@ -1,0 +1,33 @@
+// Class to generate random numbers
+// Implements something close to Middle Square Weyl Sequence RNG
+
+class Random {
+    field int x, w, s;
+
+    // Seed should be at least four numbers long
+    constructor Random new(int seed) {
+        let x = 0;
+        let w = 0;
+        let s = seed;
+        return this;
+    }
+
+    method void generate() {
+        let w = w + s;
+        let x = (x * x) + w;
+        // No shift operators, * 16 is the same as left shift 4 (<< 4)
+        // right shift is close enough to div for this
+        let x = (x / 8) | (x * 8);
+        return;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method int next() {
+        do generate();
+        return x;
+    }
+}

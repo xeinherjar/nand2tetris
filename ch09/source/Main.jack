@@ -1,0 +1,20 @@
+class Main {
+    function void main() {
+        var Random rng;
+        var int input;
+        var int result;
+
+        let input = Keyboard.readInt("Enter seed:");
+
+        let rng = Random.new(input);
+        let result = rng.next();
+        do Output.printInt(result);
+        do Output.println();
+        let result = rng.next();
+        do Output.printInt(result);
+
+        do rng.dispose();
+        return;
+    }
+
+}

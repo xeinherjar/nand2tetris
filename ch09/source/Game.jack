@@ -1,0 +1,55 @@
+class Game {
+    field int key;
+    field boolean running;
+    field Snake snake;
+
+    constructor Game new() {
+        let key = 0;
+        let running = true;
+        let snake = Snake.new();
+        return this;
+    }
+
+    method void dispose() {
+        do snake.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void tick() {
+        var int direction;
+
+        let key = Keyboard.keyPressed();
+
+        if (key = 131) { do snake.setDirection(1); }
+        if (key = 132) { do snake.setDirection(2); }
+        if (key = 133) { do snake.setDirection(3); }
+        if (key = 130) { do snake.setDirection(4); }
+
+        do snake.tick();
+        let running = snake.isAlive();
+        return;
+    }
+
+    method void render() {
+        do Screen.clearScreen();
+        do snake.render();
+        return;
+    }
+
+    function void gameOver() {
+        do Output.printString("Game Over Man, Game Over!");
+        return;
+    }
+
+    method void start() {
+        while(running) {
+            do tick();
+            do render();
+            do Sys.wait(1000);
+        }
+
+        do Game.gameOver();
+        return;
+    }
+}

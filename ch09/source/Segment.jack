@@ -1,0 +1,23 @@
+class Segment {
+    field int x, y;
+    constructor Segment new(int _x, int _y) {
+        let x = _x;
+        let y = _y;
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void setX(int _x) {
+        let x = _x;
+        return;
+    }
+
+    method void setY(int _y) {
+        let y = _y;
+        return;
+    }
+}

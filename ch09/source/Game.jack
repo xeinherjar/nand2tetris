@@ -1,23 +1,32 @@
 class Game {
-    field int key;
+    field int key, score;
     field boolean running;
     field Snake snake;
+    field Food food;
+    field Random rng;
 
-    constructor Game new() {
+    constructor Game new(int rnKey) {
         let key = 0;
+        let score = -1;  // setFood updates score;
         let running = true;
         let snake = Snake.new();
+        let rng = Random.new(rnKey * rnKey);
+        let food = Food.new(8, 8);
+        do setFood();
+
         return this;
     }
 
     method void dispose() {
         do snake.dispose();
+        do rng.dispose();
         do Memory.deAlloc(this);
+
         return;
     }
 
     method void tick() {
-        var int direction;
+        var int direction, hit;
 
         let key = Keyboard.keyPressed();
 
@@ -27,18 +36,55 @@ class Game {
         if (key = 130) { do snake.setDirection(4); }
 
         do snake.tick();
-        let running = snake.isAlive();
+
+        // 0 - no collision, 1 - self or wall, 2 - food
+        let hit = snake.checkCollision(food);
+        if (hit = 0) { return; }
+        if (hit = 1) { let running = false; do Game.gameOver(); return; }
+        if (hit = 2) { do snake.grow(); do setFood(); return; }
+
         return;
     }
+
+    method void setFood() {
+        var int x, y, tmp;
+
+        // Generate random coords, and do a poor mans mod
+        // to keep them in bounds
+        let tmp = rng.next();
+        let x = tmp - (64 * (tmp/64));
+        if (x < 0) { let x = ~x; }
+
+        let tmp = rng.next();
+        let y = tmp - (32 * (tmp/32));
+        if (y < 0) { let y = ~y; }
+
+        do food.set(x, y);
+        let score = score + 1;
+
+        return;
+    }
+
+    method void renderScore() {
+        do Output.moveCursor(0, 23);
+        do Output.printString("Score: ");
+        do Output.printInt(score);
+        return;
+    }
+
 
     method void render() {
         do Screen.clearScreen();
         do snake.render();
+        do food.render();
+        do renderScore();
         return;
     }
 
     function void gameOver() {
+        do Output.moveCursor(10, 15);
         do Output.printString("Game Over Man, Game Over!");
+        do Sys.halt();
         return;
     }
 
@@ -46,10 +92,9 @@ class Game {
         while(running) {
             do tick();
             do render();
-            do Sys.wait(1000);
+            do Sys.wait(100);
         }
 
-        do Game.gameOver();
         return;
     }
 }

@@ -1,37 +1,41 @@
+// Snake class, holds the logic for the snake entity
 class Snake {
-    // 1: up, 2: right, 3: down, 4: left
+    field int direction; // 1: up, 2: right, 3: down, 4: left
     field int headX, headY;
-    field int direction;
     field int length, maxLength;
-    field boolean alive;
     field Array body;
 
     constructor Snake new() {
-        let headX = 16;
-        let headY = 32;
-        let direction = 2;
+        let headX = 2;
+        let headY = 2;
+        let direction = 2; // right
         let length = 1;
         let maxLength = 50;
-        let alive = true;
         let body = Array.new(maxLength);
         let body[0] = Segment.new(headX, headY);
+
         return this;
     }
 
     method void dispose() {
         var int i;
         var Segment segment;
+
         let i = 0;
         while(i < length) {
             let segment = body[i];
             do segment.dispose();
-            let i = i - 1;
+            let i = i + 1;
         }
 
         do Memory.deAlloc(this);
+        do body.dispose();
+
         return;
     }
 
+    // Moves the snake forward by copying each previous segment
+    // to the following segment
     method void shift() {
         var int i, len;
         var Segment after, before, head;
@@ -56,6 +60,8 @@ class Snake {
     method void grow() {
         let body[length] = Segment.new(0, 0);
         let length = length + 1;
+
+        do shift();
         return;
     }
 
@@ -68,41 +74,53 @@ class Snake {
         return;
     }
 
-    method boolean isAlive() {
-        return alive;
-    }
-
-    method void checkCollision() {
-        var int i;
+    method int checkCollision(Food food) {
+        // Can collide with a wall, food or itself
+        // The game object tracks the food location so its passed in
+        // 0 - no collision, 1 - self or wall, 2 - food
+        var int i, foodX, foodY;
         var Segment segment;
         let i = 1;
+        let foodX = food.getX();
+        let foodY = food.getY();
+
+        // Check for food
+        if (foodX = headX) {
+            if (foodY = headY) {
+                return 2;
+            }
+        }
+
+        // Check self and food
         while(i < length) {
             let segment = body[i];
+            // Check for collision with self
             if (headX = segment[0]) {
                 if (headY = segment[1]) {
-                    let alive = false;
-                    return;
+                    return 1;
                 }
             }
+
             let i = i + 1;
         }
-        return;
+
+        // Check boundries
+        if (headY < 0)   { return 1; }
+        if (headY > 31)  { return 1; }
+        if (headX < 0)   { return 1; }
+        if (headX > 63)  { return 1; }
+
+        return 0;
     }
 
     method void tick() {
-        if (direction = 1) { let headY = headY - 8; }
-        if (direction = 2) { let headX = headX + 8; }
-        if (direction = 3) { let headY = headY + 8; }
-        if (direction = 4) { let headX = headX - 8; }
-        // Check boundries
-        if (headY < 0)   { let alive = false; return; }
-        if (headY > 256) { let alive = false; return; }
-        if (headX < 0)   { let alive = false; return; }
-        if (headX > 512) { let alive = false; return; }
+        // Increment by 1, when drawing the expand the size by 8
+        if (direction = 1) { let headY = headY - 1; }
+        if (direction = 2) { let headX = headX + 1; }
+        if (direction = 3) { let headY = headY + 1; }
+        if (direction = 4) { let headX = headX - 1; }
 
-        do grow();
         do shift();
-        do checkCollision();
         return;
     }
 
@@ -116,8 +134,11 @@ class Snake {
         while(i < length) {
             let segment = body[i];
             let x = segment[0];
+            let x = x * 8;
             let y = segment[1];
-            do Screen.drawRectangle(x, y, x + 8, y + 8);
+            let y = y * 8;
+
+            do Screen.drawRectangle(x, y, x + 7, y + 7);
             let i = i + 1;
         }
 

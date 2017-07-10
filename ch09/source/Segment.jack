@@ -1,3 +1,7 @@
+// Makes up each segment of the snake
+// Just a simple object to hold the x and 7 coords
+// No get exposed because we can access them like
+// an array and save the overhead of a function call
 class Segment {
     field int x, y;
     constructor Segment new(int _x, int _y) {

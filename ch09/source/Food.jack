@@ -1,0 +1,41 @@
+// Food, the snake grows one segment
+// when consuming food.
+class Food {
+    field int x, y;
+    constructor Food new (int _x, int _y) {
+        let x = _x;
+        let y = _y;
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void render() {
+        var int _x, _y;
+
+        let _x = x * 8;
+        let _y = y * 8;
+
+        do Screen.drawRectangle(_x, _y, _x + 7, _y + 7);
+        return;
+    }
+
+    method int getX() {
+        return x;
+    }
+
+    method int getY() {
+        return y;
+    }
+
+    method void set(int _x, int _y) {
+        let x = _x;
+        let y = _y;
+        return;
+    }
+
+
+}

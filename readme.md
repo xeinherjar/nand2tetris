@@ -24,10 +24,10 @@ Chapters
 *  [x] Chapter 4 Machine Language (Optional)
 *  [x] Chapter 07 Virtual Machine 1 : Stack Arithmetic
 *  [x] Chapter 08 Virtual Machine 2: Program Control
-*  == [] Chapter 09 High-Level Languages ==
-*  [] Chapter 10
-*  [] Chapter 11
-*  [] Chapter 12
+*  == [ ] Chapter 09 High-Level Languages ==
+*  [ ] Chapter 10
+*  [ ] Chapter 11
+*  [ ] Chapter 12
 
 
 Status: The application can compile VM code to assembly. The lexing and parsing

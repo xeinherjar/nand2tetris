@@ -15,7 +15,7 @@ class Random {
     method void generate() {
         let w = w + s;
         let x = (x * x) + w;
-        // No shift operators, * 16 is the same as left shift 4 (<< 4)
+        // No shift operators, * 8 is the same as left shift 2 (<< 2)
         // right shift is close enough to div for this
         let x = (x / 8) | (x * 8);
         return;

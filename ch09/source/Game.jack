@@ -40,10 +40,22 @@ class Game {
         // 0 - no collision, 1 - self or wall, 2 - food
         let hit = snake.checkCollision(food);
         if (hit = 0) { return; }
-        if (hit = 1) { let running = false; do Game.gameOver(); return; }
+        if (hit = 1) { let running = false; return; }
         if (hit = 2) { do snake.grow(); do setFood(); return; }
 
         return;
+    }
+
+    // Ideally would go in a helper library or we
+    // could expand Math to have this, but eh, I 
+    // just need it once to help set the food location
+    function int mod(int n, int m) {
+        let n = Math.abs(n);
+        while(n > m) {
+            let n = n - m;
+        }
+
+        return n;
     }
 
     method void setFood() {
@@ -52,12 +64,10 @@ class Game {
         // Generate random coords, and do a poor mans mod
         // to keep them in bounds
         let tmp = rng.next();
-        let x = tmp - (64 * (tmp/64));
-        if (x < 0) { let x = ~x; }
+        let x = Game.mod(tmp, 64);
 
         let tmp = rng.next();
-        let y = tmp - (32 * (tmp/32));
-        if (y < 0) { let y = ~y; }
+        let y = Game.mod(tmp, 32);
 
         do food.set(x, y);
         let score = score + 1;
@@ -81,16 +91,17 @@ class Game {
         return;
     }
 
-    function void gameOver() {
+    method void gameOver() {
         do Output.moveCursor(10, 15);
         do Output.printString("Game Over Man, Game Over!");
-        do Sys.halt();
         return;
     }
 
     method void start() {
         while(running) {
             do tick();
+            // Either Render next frame or exit game
+            if (~running) { return; }
             do render();
             do Sys.wait(100);
         }

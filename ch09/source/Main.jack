@@ -4,6 +4,8 @@ class Main {
         var int key;
 
         do Output.moveCursor(11, 9);
+        do Output.printString("Use arrow keys to move.");
+        do Output.moveCursor(12, 9);
         do Output.printString("Press ANY KEY to begin!");
 
         while (key = 0) {
@@ -15,7 +17,9 @@ class Main {
 
         do Screen.clearScreen();
         do game.start();
+        do game.gameOver();
         do game.dispose();
+        do Sys.wait(2500);
 
         return;
     }

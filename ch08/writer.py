@@ -365,61 +365,48 @@ class ASMWriter(object):
 
     def asm_label(self, label_name, file_name, line_number):
         """Generate named label"""
-
-        jmp_label = label_name
-        if len(self.function_stack) > 0:
-            jmp_label = self.function_stack[0] + ':' + label_name
+        #jmp_label = str(ASMWriter.label_counter)
+        #ASMWriter.label_counter = ASMWriter.label_counter + 1
+        # TODO: Check for labels in functions,
 
         asm = [
             "// label {label_name} {file_name} {line_number}",
-            "({jmp_label})"
+            "({label_name})"
         ]
 
-        return '\n'.join(asm).format(jmp_label=jmp_label,
-                                     label_name=label_name,
+        return '\n'.join(asm).format(label_name=label_name,
                                      file_name=file_name,
                                      line_number=line_number) + '\n'
 
 
     def asm_goto(self, label_name, file_name, line_number):
         """Jump to label"""
-
-        jmp_label = label_name
-        if len(self.function_stack) > 0:
-            jmp_label = self.function_stack[0] + ':' + label_name
-
+        # TODO: Check for labels in functions,
         asm = [
             "// goto {label_name} {file_name} {line_number}",
-            "@{jmp_label}",
+            "@{label_name}",
             "0;JMP"
         ]
 
         return '\n'.join(asm).format(label_name=label_name,
-                                     jmp_label=jmp_label,
                                      file_name=file_name,
                                      line_number=line_number) + '\n'
 
 
     def asm_if_goto(self, label_name, file_name, line_number):
         """Pop from stack, if not 0 then goto label"""
-
-        jmp_label = label_name
-        if len(self.function_stack) > 0:
-            jmp_label = self.function_stack[0] + ':' + label_name
-
-
+        # TODO: Check for labels in functions,
         asm = [
             "// if-goto {label_name} {file_name} {line_number}",
             "@SP",
             "M=M-1",
             "A=M",
             "D=M",
-            "@{jmp_label}",
+            "@{label_name}",
             "D;JNE",
         ]
 
         return '\n'.join(asm).format(label_name=label_name,
-                                     jmp_label=jmp_label,
                                      file_name=file_name,
                                      line_number=line_number) + '\n'
 
@@ -447,8 +434,6 @@ class ASMWriter(object):
             local_stack
         ]
 
-        self.function_stack.append(fn_name);
-
         return '\n'.join(asm).format(fn_name=fn_name,
                                      nVars=nVars,
                                      file_name=file_name,
@@ -457,22 +442,21 @@ class ASMWriter(object):
 
 
     def asm_return(self, file_name, line_number):
-        """Return from a function call and resets stack.
-           Store FRAME pointer in R14, RET in R15"""
+        """Return from a function call and resets stack"""
         asm = [
             "// return {file_name} {line_number}",
-            # Store LCL in R14
+            # Store LCL in FRAME
             "@LCL",
             "D=M",
-            "@R14",
+            "@FRAME",
             "M=D",
-            # Save return address *(R14 - 5)
+            # Save return address *(FRAME - 5)
             "@5",
             "D=A",
-            "@R14",
+            "@FRAME",
             "A=M-D",
             "D=M",
-            "@R15",
+            "@RET",
             "M=D",
             # Position return value for caller, *ARG = pop()
             "@SP",
@@ -486,45 +470,41 @@ class ASMWriter(object):
             "D=M+1",
             "@SP",
             "M=D",
-            # Restore that for caller, *(R14 - 1)
-            "@R14",
+            # Restore that for caller, *(FRAME - 1)
+            "@FRAME",
             "A=M-1",
             "D=M",
             "@THAT",
             "M=D",
-            # Restore this for caller, *(R14 - 2)
+            # Restore this for caller, *(FRAME - 2)
             "@2",
             "D=A",
-            "@R14",
+            "@FRAME",
             "A=M-D",
             "D=M",
             "@THIS",
             "M=D",
-            # Restore arg for caller, *(R14 - 3)
+            # Restore arg for caller, *(FRAME - 3)
             "@3",
             "D=A",
-            "@R14",
+            "@FRAME",
             "A=M-D",
             "D=M",
             "@ARG",
             "M=D",
-            # Restore lcl for caller, *(R14 - 4)
+            # Restore lcl for caller, *(FRAME - 4)
             "@4",
             "D=A",
-            "@R14",
+            "@FRAME",
             "A=M-D",
             "D=M",
             "@LCL",
             "M=D",
             # Jump to return address
-            "@R15",
+            "@RET",
             "A=M",
             "0;JMP"
         ]
-
-        # If at the end of a function, pop it off the stack
-        if len(self.function_stack) > 0:
-            self.function_stack.pop();
 
         return '\n'.join(asm).format(file_name=file_name,
                                      line_number=line_number) + '\n'

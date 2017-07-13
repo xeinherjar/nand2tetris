@@ -24,13 +24,12 @@ def main():
             os.remove(file_output)
 
         # Add startup code
-        initVM(file_output)
-        for root, _, files in os.walk(source_file):
+        initVM(file_output);
+        for root, directory, files in os.walk(dir_name):
             for f in files:
                 if f.endswith('.vm'):
                     file_path = os.path.join(root, f)
                     file_name = os.path.splitext(os.path.basename(f))[0]
-                    print('--Processing: ', file_name)
                     processVMFile(file_path, file_name, file_output)
     else:
         file_name = os.path.splitext(os.path.basename(source_file))[0]

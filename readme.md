@@ -32,7 +32,3 @@ Chapters
 *  [ ] Chapter 10 Compiler I: Syntax Analysis
 *  [ ] Chapter 11
 *  [ ] Chapter 12
-
-
-Status: The application can compile VM code to assembly. The lexing and parsing
-of the Jack language happen in later chapters.

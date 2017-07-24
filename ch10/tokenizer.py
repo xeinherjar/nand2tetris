@@ -63,21 +63,21 @@ class Tokenizer(object):
 
     def str_constant(self):
         if (self.current_char == '"'):
-            return self.transitions[Token.END](self, 'STR_CONSTANT')
+            return self.transitions[Token.END](self, 'str_constanT')
 
         self.token_value = self.token_value + self.current_char
         return Token.STR_CONSTANT
 
     def int_constant(self):
         if (not self.current_char.isdigit()):
-            self.transitions[Token.END](self, 'INT_CONSTANT')
+            self.transitions[Token.END](self, 'int_constanT')
             return self.transitions[Token.NEW](self)
 
         self.token_value = self.token_value + self.current_char
         return Token.INT_CONSTANT
 
     def symbol(self):
-        return self.transitions[Token.END](self, 'SYMBOL')
+        return self.transitions[Token.END](self, 'symbol')
 
     def keyword_or_identifier(self):
         if (self.current_char.isspace()):
@@ -88,19 +88,19 @@ class Tokenizer(object):
 
         if (self.current_char not in self.identifier_characters):
             if (self.token_value in self.keywords):
-                self.transitions[Token.END](self, 'KEYWORD')
+                self.transitions[Token.END](self, 'keyword')
             else:
-                self.transitions[Token.END](self, 'IDENTIFIER')
+                self.transitions[Token.END](self, 'identifier')
             return self.transitions[Token.NEW](self)
 
         self.token_value = self.token_value + self.current_char
         return Token.KEYWORD_OR_IDENTIFIER
 
     def keyword(self):
-        return self.transitions[Token.END](self, 'KEYWORD')
+        return self.transitions[Token.END](self, 'keyword')
 
     def indentifier(self):
-        return self.transitions[Token.END](self, 'IDENTIFIER')
+        return self.transitions[Token.END](self, 'identifier')
 
     def symbol_or_comment(self):
         if (self.current_char is '/'):
@@ -110,7 +110,7 @@ class Tokenizer(object):
 
         self.token_value = self.token_value + self.current_char
         self.transitions[Token.SYMBOL](self)
-        return self.transistion[Token.NEW](self)
+        return self.transitions[Token.NEW](self)
 
     def comment_sl(self):
         if (self.current_char is '\n'):
